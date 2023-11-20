@@ -1,7 +1,7 @@
 BINDIR=/usr/bin
 SYSCONFDIR=/etc
 LIBEXECDIR=/usr/libexec
-GITEXECPATH=`git --exec-path`
+LIBDIR=/usr/lib
 DESTDIR=
 PROGNAME=git-remote-qubes
 SITELIBDIR=`python3 -c 'import distutils.sysconfig; print (distutils.sysconfig.get_python_lib())'`
@@ -22,7 +22,6 @@ clean:
 	rm -rfv $(OBJLIST) $(SUBSTLIST)
 	find -name '*~' -print0 | xargs -0 rm -fv
 	rm -fv *.tar.gz *.rpm
-	echo "FIXME: "
 
 dist: clean
 	excludefrom= ; test -f .gitignore && excludefrom=--exclude-from=.gitignore ; DIR=$(PROGNAME)-`awk '/^Version:/ {print $$2}' $(PROGNAME).spec` && FILENAME=$$DIR.tar.gz && tar cvzf "$$FILENAME" --exclude="$$FILENAME" --exclude=.git --exclude=.gitignore $$excludefrom --transform="s|^|$$DIR/|" --show-transformed *
@@ -30,18 +29,18 @@ dist: clean
 rpm: dist
 	T=`mktemp -d` && rpmbuild --nodeps --define "_topdir $$T" -ta $(PROGNAME)-`awk '/^Version:/ {print $$2}' $(PROGNAME).spec`.tar.gz || { rm -rf "$$T"; exit 1; } && mv "$$T"/RPMS/*/* "$$T"/SRPMS/* . || { rm -rf "$$T"; exit 1; } && rm -rf "$$T"
 
-#deb: dist
-#	T=`mktemp -d` && rpmbuild --nodeps --define "_topdir $$T" -ta $(PROGNAME)-`awk '/^Version:/ {print $$2}' $(PROGNAME).spec`.tar.gz || { rm -rf "$$T"; exit 1; } && mv "$$T"/RPMS/*/* "$$T"/SRPMS/* . || { rm -rf "$$T"; exit 1; } && rm -rf "$$T"
-
 srpm: dist
-	T=`mktemp -d` && rpmbuild --nodeps --define "_topdir $$T" -ts $(PROGNAME)-`awk '/^Version:/ {print $$2}' $(PROGNAME).spec`.tar.gz || { rm -rf "$$T"; exit 1; } && mv "$$T"/SRPMS/* . || { rm -rf "$$T"; exit 1; } && rm -rf "$$T"
+	T=`mktemp -d` && rpmbuild --define "_topdir $$T" -ts $(PROGNAME)-`awk '/^Version:/ {print $$2}' $(PROGNAME).spec`.tar.gz || { rm -rf "$$T"; exit 1; } && mv "$$T"/SRPMS/* . || { rm -rf "$$T"; exit 1; } && rm -rf "$$T"
+
+deb: dist
+	DIR=$(PROGNAME)-`awk '/^Version:/ {print $$2}' $(PROGNAME).spec` && FILENAME=$$DIR.tar.gz && cp -v  "$$FILENAME" "$$HOME/debbuild/SOURCES"
+	export LIBEXECDIR=$(LIBDIR) && debbuild --define "_libexecdir $(LIBDIR)" -bb git-remote-qubes.spec
+
 
 install-vm: all
 	install -Dm 644 src/gitremotequbes/*.py -t $(DESTDIR)/$(SITELIBDIR)/gitremotequbes/
 	install -Dm 755 bin/git-local-qubes -t $(DESTDIR)/$(LIBEXECDIR)/
-	install -Dm 755 bin/git-local-qubes -t $(DESTDIR)/lib/
 	install -Dm 755 bin/git-remote-qubes -t $(DESTDIR)/$(LIBEXECDIR)/git-core/
-	install -Dm 755 bin/git-remote-qubes -t $(DESTDIR)/lib/git-core/
 	install -Dm 755 etc/qubes-rpc/ruddo.Git -t $(DESTDIR)/$(SYSCONFDIR)/qubes-rpc/
 
 install-dom0: all

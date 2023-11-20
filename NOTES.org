@@ -3,8 +3,18 @@
 *** tying debbuild
    - fedora uses /usr/libexec/git-core/, while debian uses /usr/lib/git-core/
    - fedora uses /usr/lib/python3.X/site-packages, while debian uses /usr/lib/python3.X/dist-packages
+
+   - where should the git helpers actually go? where does git actually look for helpers?
+     - ?? /usr/share/git-core ???
+
+   - where should the python code go? where does python actually look for packages?
+     - ??? /usr/local/lib/pythonX.X ???
+
 ** running in dom0
-       # FIXME: What if we are running from dom0?
-       # mylostone/git-remote-qubes.git/src/gitremotequbes/client.py:40
-       # vm = subprocess.Popen(
-       #   ["/usr/lib/qubes/qrexec-client-vm",
+   # FIXME: What if we are running from dom0?
+   # mylostone/git-remote-qubes.git/src/gitremotequbes/client.py:40
+   # vm = subprocess.Popen(
+   #   ["/usr/lib/qubes/qrexec-client-vm"
+   - I used some code snippets from the qubes qrexec client from
+     dom0(/fedora-vm?) /usr/lib/python3.8/site-packages/qrexec/client.py for
+     RPC_MULTIPLEXER and such

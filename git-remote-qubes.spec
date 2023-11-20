@@ -46,13 +46,13 @@ have VMs that have the %{name} package installed.
 
 %build
 # variables must be kept in sync with install
-make DESTDIR=$RPM_BUILD_ROOT BINDIR=%{_bindir} SYSCONFDIR=%{_sysconfdir} SITELIBDIR=%{python3_sitelib} LIBEXECDIR=%{_libexecdir} LIBDIR=%{_libdir}
+make DESTDIR=$RPM_BUILD_ROOT BINDIR=%{_bindir} SYSCONFDIR=%{_sysconfdir} SITELIBDIR=%{python3_sitelib} LIBEXECDIR=%{_libexecdir}
 
 %install
 rm -rf $RPM_BUILD_ROOT
 # variables must be kept in sync with build
 for target in install-vm install-dom0; do
-    make $target DESTDIR=$RPM_BUILD_ROOT BINDIR=%{_bindir} SYSCONFDIR=%{_sysconfdir} SITELIBDIR=%{python3_sitelib} LIBEXECDIR=%{_libexecdir} LIBDIR=%{_libdir}
+    make $target DESTDIR=$RPM_BUILD_ROOT BINDIR=%{_bindir} SYSCONFDIR=%{_sysconfdir} SITELIBDIR=%{python3_sitelib} LIBEXECDIR=%{_libexecdir}
 done
 
 %check
@@ -62,8 +62,6 @@ if grep -r --exclude='*.pyc' --exclude='*.pyo' --exclude='*.policy' '@.*@' $RPM_
 fi
 
 %files
-%attr(0755, root, root) /lib/git-local-qubes
-%attr(0755, root, root) /lib/git-core/git-remote-qubes
 %attr(0755, root, root) %{_libexecdir}/git-local-qubes
 %attr(0755, root, root) %{_libexecdir}/git-core/git-remote-qubes
 %attr(0644, root, root) %{python3_sitelib}/gitremotequbes/*.py
